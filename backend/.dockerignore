@@ -1,0 +1,42 @@
+# ── Docker ignore ────────────────────────────────────────────────────
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node (frontend — not needed in backend image)
+node_modules/
+dist/
+dist-ssr/
+
+# Environment files (inject at runtime, not baked into image)
+.env
+.env.*
+!.env.example
+
+# Version control
+.git/
+.gitignore
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Misc
+*.log
+*.pid
+*.seed
+*.out
+coverage/
+htmlcov/
