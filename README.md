@@ -16,7 +16,6 @@ Auth, database, proxy, and Docker all pre-configured. Clone and start building.
 │   │   ├── models/         # Pydantic models
 │   │   └── main.py         # FastAPI entry point
 │   ├── run.py              # Unified server launcher (dev / prod)
-│   ├── nginx.conf          # Production reverse proxy config
 │   ├── Dockerfile          # Backend Docker image
 │   ├── .env.example        # Backend env template
 │   └── requirements.txt
@@ -78,9 +77,9 @@ npm run frontend       # starts Vite dev server
 
 | Service  | URL                     |
 |----------|-------------------------|
-| Frontend | http://localhost:5173    |
-| Backend  | http://localhost:8000    |
-| API Docs | http://localhost:8000/docs |
+| Frontend | <http://localhost:5173>    |
+| Backend  | <http://localhost:8000>    |
+| API Docs | <http://localhost:8000/docs> |
 
 The Vite dev server proxies all `/api/*` requests to the backend automatically.
 
@@ -99,8 +98,8 @@ Browser (:5173)
 ### Production (Docker)
 
 ```
-Browser (:5000)
-  └── POST /auth/login → Nginx (:5000) → Uvicorn (:8000/api/)
+Browser (:8000)
+  └── POST /api/auth/login → FastAPI (:8000)
 ```
 
 ---
@@ -120,14 +119,14 @@ docker build -t starter-backend .
 
 ```bash
 cd backend
-docker run -p 5000:5000 --env-file .env starter-backend
+docker run -p 8000:8000 --env-file .env starter-backend
 ```
 
 ### Run with inline env vars
 
 ```bash
 cd backend
-docker run -p 5000:5000 \
+docker run -p 8000:8000 \
   -e MONGO_URI="mongodb+srv://user:pass@cluster.mongodb.net/mydb" \
   -e JWT_SECRET="my-production-secret" \
   -e CORS_ORIGINS="https://myapp.com" \
@@ -137,20 +136,19 @@ docker run -p 5000:5000 \
 ### How it works inside the container
 
 ```
-Nginx (:5000)  →  Uvicorn (:8000, 4 workers)
+Uvicorn (:8000, 2 workers)
 ```
 
-- Nginx listens on port **5000** (the only exposed port)
-- Proxies all requests to Uvicorn at `127.0.0.1:8000/api/`
-- `run.py production` starts both Nginx and multi-worker Uvicorn
+- Uvicorn listens directly on port **8000** (exposed port)
+- `run.py production` starts multi-worker Uvicorn directly
 
 ### Docker env defaults
 
 | Variable | Default (in Dockerfile) | Description |
 |---|---|---|
-| `BACKEND_HOST` | `127.0.0.1` | Uvicorn bind host |
+| `BACKEND_HOST` | `0.0.0.0` | Uvicorn bind host |
 | `BACKEND_PORT` | `8000` | Uvicorn bind port |
-| `BACKEND_WORKERS` | `4` | Uvicorn worker count |
+| `BACKEND_WORKERS` | `2` | Uvicorn worker count |
 
 All app env vars (`MONGO_URI`, `JWT_SECRET`, etc.) should be injected at runtime via `--env-file` or `-e` flags.
 
@@ -164,14 +162,14 @@ cd backend
 # Development — hot reload, verbose logs, 0.0.0.0:8000
 ./venv/bin/python run.py development
 
-# Production — Nginx + multi-worker Uvicorn, 127.0.0.1:8000
+# Production — multi-worker Uvicorn, 0.0.0.0:8000
 ./venv/bin/python run.py production
 ```
 
-| Mode | Reload | Host | Workers | Nginx |
-|---|---|---|---|---|
-| `development` | ✅ | `0.0.0.0` | 1 | ❌ |
-| `production` | ❌ | `127.0.0.1` | 4 | ✅ |
+| Mode | Reload | Host | Workers |
+|---|---|---|---|
+| `development` | ✅ | `0.0.0.0` | 1 |
+| `production` | ❌ | `0.0.0.0` | 4 |
 
 ---
 
@@ -229,5 +227,4 @@ Run from the project root:
 | Auth | JWT (python-jose), Google OAuth, bcrypt |
 | Database | MongoDB |
 | Proxy (dev) | Vite dev server proxy |
-| Proxy (prod) | Nginx reverse proxy |
 | Container | Docker |

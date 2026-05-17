@@ -18,9 +18,9 @@ const LandingPage = () => {
     { icon: <ShieldCheck size={24} />, title: 'Auth Ready', desc: 'JWT + Google OAuth baked in. Login, signup, and protected routes — all wired up.' },
     { icon: <Zap size={24} />, title: 'Lightning Fast', desc: 'Vite + FastAPI dev server with HMR and hot reload. Sub-second feedback loops.' },
     { icon: <Database size={24} />, title: 'MongoDB Ready', desc: 'Motor async driver pre-configured. Models, connection pooling, and env-based config.' },
-    { icon: <Globe size={24} />, title: 'API Proxy', desc: 'Vite dev proxy + Docker/Nginx production config. No CORS headaches, ever.' },
+    { icon: <Globe size={24} />, title: 'API Proxy', desc: 'Vite dev proxy + optimized production backend routing. No CORS headaches, ever.' },
     { icon: <Code2 size={24} />, title: 'Clean Architecture', desc: 'Modular folder structure with separated concerns. Routes, models, context — all organized.' },
-    { icon: <Layers size={24} />, title: 'Docker Ready', desc: 'Production Dockerfile with Nginx reverse proxy. One command to containerize.' },
+    { icon: <Layers size={24} />, title: 'Docker Ready', desc: 'Production Dockerfile with multi-worker Uvicorn. One command to containerize.' },
   ];
 
   const techStack = [
