@@ -1,7 +1,22 @@
 import axios from 'axios';
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+let baseURL = '/api';
+
+if (apiBaseUrl) {
+  // Strip trailing slashes
+  const cleanUrl = apiBaseUrl.replace(/\/$/, '');
+  // If it's a full URL and doesn't end with /api, append /api to match FastAPI endpoints
+  if (cleanUrl.endsWith('/api')) {
+    baseURL = cleanUrl;
+  } else {
+    // If it is a full HTTP URL, append /api. Otherwise keep it as is.
+    baseURL = cleanUrl.startsWith('http') ? `${cleanUrl}/api` : cleanUrl;
+  }
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: baseURL,
   headers: {
     'Content-Type': 'application/json',
   },

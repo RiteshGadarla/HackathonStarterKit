@@ -48,7 +48,10 @@ def run_production(host: str, port: int, workers: int):
 
 
 def main():
-    mode = sys.argv[1].lower() if len(sys.argv) > 1 else "development"
+    # Load mode: check environment variable APP_ENV, default to "development".
+    # This is overridden if a command line argument is provided.
+    env_mode = os.getenv("APP_ENV", "development").lower()
+    mode = sys.argv[1].lower() if len(sys.argv) > 1 else env_mode
 
     if mode not in ("development", "production"):
         print(f"  ❌  Unknown mode: '{mode}'")
@@ -57,8 +60,9 @@ def main():
 
     is_prod = mode == "production"
 
-    host = os.getenv("BACKEND_HOST", "0.0.0.0")
-    port = int(os.getenv("BACKEND_PORT", "8000"))
+    # Support both new HOST/PORT requirements and legacy BACKEND_HOST/BACKEND_PORT
+    host = os.getenv("HOST", os.getenv("BACKEND_HOST", "0.0.0.0"))
+    port = int(os.getenv("PORT", os.getenv("BACKEND_PORT", "8000")))
     workers = int(os.getenv("BACKEND_WORKERS", "2" if is_prod else "1"))
 
     if is_prod:
