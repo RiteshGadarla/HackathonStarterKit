@@ -45,15 +45,15 @@ echo -e "\n${YELLOW}📄 Checking Environment Variables...${NC}"
 if [ -f ./frontend/.env ]; then
     echo -e "${GREEN}✅ Environment file ./frontend/.env detected.${NC}"
     
-    # Dynamically extract all VITE_ environment variables to pass as Docker build-args
-    BUILD_ARGS=""
+    # Dynamically extract all VITE_ environment variables into a bash array
+    BUILD_ARGS=()
     while IFS= read -r line || [ -n "$line" ]; do
         # Strip comments and ensure line contains a VITE_ variable definition
         clean_line=$(echo "$line" | sed 's/#.*//' | xargs)
         if echo "$clean_line" | grep -q "^VITE_"; then
             key=$(echo "$clean_line" | cut -d'=' -f1 | xargs)
             value=$(echo "$clean_line" | cut -d'=' -f2- | tr -d '"' | tr -d "'" | xargs)
-            BUILD_ARGS="$BUILD_ARGS --build-arg $key=$value"
+            BUILD_ARGS+=("--build-arg" "$key=$value")
         fi
     done < ./frontend/.env
     echo -e "${GREEN}📝 Loaded Vite build arguments dynamically.${NC}"
@@ -67,7 +67,7 @@ fi
 
 # 4. Build the Frontend Docker image
 echo -e "\n${YELLOW}🔨 Building Frontend multi-stage Docker image...${NC}"
-docker build $BUILD_ARGS -t hackathon-frontend ./frontend
+docker build "${BUILD_ARGS[@]}" -t hackathon-frontend ./frontend
 
 # 5. Clean up old containers
 if [ "$(docker ps -aq -f name=frontend-app)" ]; then
